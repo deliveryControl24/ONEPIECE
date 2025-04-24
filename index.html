@@ -79,6 +79,35 @@
             text-align: center;
             color: #fff;
         }
+
+        .gallo-pinto-input {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #fff;
+            border-radius: 5px;
+            padding: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .gallo-pinto-input::placeholder {
+            color: #fff;
+            opacity: 1;
+        }
+
+        .resumen-ventas {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .resumen-ventas h5 {
+            color: #fff;
+        }
+
+        .resumen-ventas .card-panel {
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -89,13 +118,13 @@
                 <!-- Productos se insertarán aquí dinámicamente -->
             </div>
             <div class="col s12 m6 l8">
-                <div class="card">
+                <div class="card resumen-ventas">
                     <div class="card-content">
                         <span class="card-title">Resumen de Ventas</span>
                         <div class="row">
                             <div class="input-field col s12">
-                                <input id="gallo_pinto" type="number" class="validate">
-                                <label for="gallo_pinto">Gallo Pinto</label>
+                                <input id="gallo_pinto" type="number" class="validate gallo-pinto-input" placeholder="0">
+                                <label for="gallo_pinto" class="active">Gallo Pinto</label>
                             </div>
                         </div>
                         <div class="row">
@@ -107,6 +136,10 @@
                                 <button class="btn waves-effect waves-light red darken-1" type="button" onclick="cerrarCaja()">
                                     Cerrar Caja
                                     <i class="material-icons right">lock</i>
+                                </button>
+                                <button class="btn waves-effect waves-light blue darken-1" type="button" onclick="limpiarCampos()">
+                                    Limpiar
+                                    <i class="material-icons right">delete</i>
                                 </button>
                             </div>
                         </div>
@@ -236,6 +269,16 @@
                 localStorage.removeItem('ventas');
                 cargarDatos();
             }
+        }
+
+        function limpiarCampos() {
+            productos.forEach(producto => {
+                document.getElementById(producto.id).value = 0;
+            });
+            document.getElementById('gallo_pinto').value = 0;
+            document.getElementById('ganancias').innerHTML = '';
+            document.getElementById('ganancias-finales').innerHTML = '';
+            localStorage.removeItem('ventas');
         }
 
         function guardarDatos(datos) {
