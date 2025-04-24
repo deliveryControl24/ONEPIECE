@@ -9,10 +9,19 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
+            background-image: url('fondo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .container {
             margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
         }
 
         h1 {
@@ -28,6 +37,11 @@
 
         .input-field label {
             font-weight: bold;
+            color: #fff;
+        }
+
+        .input-field input {
+            color: #fff;
         }
 
         #ganancias, #ganancias-finales {
@@ -41,6 +55,7 @@
             margin: 10px 0;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.7);
         }
 
         .product-card:hover {
@@ -50,6 +65,7 @@
         .product-card .card-title {
             font-size: 1.2rem;
             font-weight: bold;
+            color: #fff;
         }
 
         .product-card .card-content {
@@ -61,6 +77,7 @@
         .product-card .card-content input {
             width: 60px;
             text-align: center;
+            color: #fff;
         }
     </style>
 </head>
@@ -155,18 +172,24 @@
         function calcularGanancias() {
             let totalGanancias = 0;
             const cantidades = {};
+            let detalleGanancias = '<ul>';
 
             productos.forEach(producto => {
                 const cantidad = parseInt(document.getElementById(producto.id).value) || 0;
                 cantidades[producto.id] = cantidad;
-                totalGanancias += producto.precio * cantidad;
+                const gananciaProducto = producto.precio * cantidad;
+                totalGanancias += gananciaProducto;
+                detalleGanancias += `<li>${producto.nombre}: ${cantidad} x C$${producto.precio} = C$${gananciaProducto.toFixed(2)}</li>`;
             });
 
             const galloPinto = parseFloat(document.getElementById('gallo_pinto').value) || 0;
             totalGanancias += galloPinto;
+            detalleGanancias += `<li>Gallo Pinto: C$${galloPinto.toFixed(2)}</li>`;
+            detalleGanancias += `<li><strong>Total: C$${totalGanancias.toFixed(2)}</strong></li>`;
+            detalleGanancias += '</ul>';
 
             const gananciasElement = document.getElementById('ganancias');
-            gananciasElement.innerHTML = `Ganancias Totales: C$${totalGanancias.toFixed(2)}`;
+            gananciasElement.innerHTML = detalleGanancias;
 
             if (totalGanancias < 0) {
                 gananciasElement.classList.add('red', 'white-text');
@@ -183,17 +206,23 @@
             const datos = JSON.parse(localStorage.getItem('ventas'));
             if (datos) {
                 let totalGananciasFinales = 0;
+                let detalleGananciasFinales = '<ul>';
 
                 productos.forEach(producto => {
                     const cantidad = datos[producto.id] || 0;
-                    totalGananciasFinales += producto.precio * cantidad;
+                    const gananciaProducto = producto.precio * cantidad;
+                    totalGananciasFinales += gananciaProducto;
+                    detalleGananciasFinales += `<li>${producto.nombre}: ${cantidad} x C$${producto.precio} = C$${gananciaProducto.toFixed(2)}</li>`;
                 });
 
                 const galloPinto = datos.gallo_pinto || 0;
                 totalGananciasFinales += galloPinto;
+                detalleGananciasFinales += `<li>Gallo Pinto: C$${galloPinto.toFixed(2)}</li>`;
+                detalleGananciasFinales += `<li><strong>Total: C$${totalGananciasFinales.toFixed(2)}</strong></li>`;
+                detalleGananciasFinales += '</ul>';
 
                 const gananciasFinalesElement = document.getElementById('ganancias-finales');
-                gananciasFinalesElement.innerHTML = `Ganancias Finales del Día: C$${totalGananciasFinales.toFixed(2)}`;
+                gananciasFinalesElement.innerHTML = detalleGananciasFinales;
 
                 if (totalGananciasFinales < 0) {
                     gananciasFinalesElement.classList.add('red', 'white-text');
