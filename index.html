@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONE PIECE - Sistema de Ventas POS</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('fondo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        h5 {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .input-field label {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .input-field input {
+            color: #fff;
+        }
+
+        #ganancias, #ganancias-finales {
+            padding: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .product-card {
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .product-card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-card .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .product-card .card-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-card .card-content input {
+            width: 60px;
+            text-align: center;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="center-align">ONE PIECE - Sistema de Ventas POS</h1>
+        <div class="row">
+            <div class="col s12 m6 l4" id="product-list">
+                <!-- Productos se insertarán aquí dinámicamente -->
+            </div>
+            <div class="col s12 m6 l8">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Resumen de Ventas</span>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="gallo_pinto" type="number" class="validate">
+                                <label for="gallo_pinto">Gallo Pinto</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <button class="btn waves-effect waves-light" type="button" onclick="calcularGanancias()">
+                                    Calcular Ganancias
+                                    <i class="material-icons right">attach_money</i>
+                                </button>
+                                <button class="btn waves-effect waves-light red darken-1" type="button" onclick="cerrarCaja()">
+                                    Cerrar Caja
+                                    <i class="material-icons right">lock</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action">
+                        <h5>Ganancias del Día</h5>
+                        <div id="ganancias" class="card-panel teal lighten-2 white-text"></div>
+                        <h5>Ganancias Finales</h5>
+                        <div id="ganancias-finales" class="card-panel teal lighten-2 white-text"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const productos = [
+            { id: 'tacos', nombre: 'Tacos', precio: 25 },
+            { id: 'enchiladas', nombre: 'Enchiladas', precio: 20 },
+            { id: 'maduro', nombre: 'Maduro', precio: 20 },
+            { id: 'empanada_maduro', nombre: 'Empanada Maduro', precio: 20 },
+            { id: 'tortitas_carne', nombre: 'Tortitas de Carne', precio: 20 },
+            { id: 'queso_frito', nombre: 'Queso Frito', precio: 15 },
+            { id: 'tajadas', nombre: 'Tajadas', precio: 20 },
+            { id: 'chorizo_parrillero', nombre: 'Chorizo Parrillero', precio: 40 },
+            { id: 'manuelitas', nombre: 'Manuelitas', precio: 20 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarDatos();
+            renderizarProductos();
+        });
+
+        function renderizarProductos() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            productos.forEach(producto => {
+                const productCard = document.createElement('div');
+                productCard.className = 'card product-card';
+                productCard.innerHTML = `
+                    <div class="card-content">
+                        <span class="card-title">${producto.nombre}</span>
+                        <div class="card-content">
+                            <span>C$${producto.precio}</span>
+                            <input id="${producto.id}" type="number" class="validate" value="0">
+                        </div>
+                    </div>
+                `;
+                productList.appendChild(productCard);
+            });
+        }
+
+        function cargarDatos() {
+            const datos = JSON.parse(localStorage.getItem('ventas'));
+            if (datos) {
+                productos.forEach(producto => {
+                    const input = document.getElementById(producto.id);
+                    if (input) input.value = datos[producto.id] || 0;
+                });
+                document.getElementById('gallo_pinto').value = datos.gallo_pinto || 0;
+            }
+        }
+
+        function calcularGanancias() {
+            let totalGanancias = 0;
+            const cantidades = {};
+
+            productos.forEach(producto => {
+                const cantidad = parseInt(document.getElementById(producto.id).value) || 0;
+                cantidades[producto.id] = cantidad;
+                totalGanancias += producto.precio * cantidad;
+            });
+
+            const galloPinto = parseFloat(document.getElementById('gallo_pinto').value) || 0;
+            totalGanancias += galloPinto;
+
+            const gananciasElement = document.getElementById('ganancias');
+            gananciasElement.innerHTML = `Ganancias Totales: C$${totalGanancias.toFixed(2)}`;
+
+            if (totalGanancias < 0) {
+                gananciasElement.classList.add('red', 'white-text');
+                gananciasElement.classList.remove('teal', 'lighten-2');
+            } else {
+                gananciasElement.classList.add('teal', 'lighten-2', 'white-text');
+                gananciasElement.classList.remove('red');
+            }
+
+            guardarDatos({ ...cantidades, gallo_pinto: galloPinto });
+        }
+
+        function cerrarCaja() {
+            const datos = JSON.parse(localStorage.getItem('ventas'));
+            if (datos) {
+                let totalGananciasFinales = 0;
+
+                productos.forEach(producto => {
+                    const cantidad = datos[producto.id] || 0;
+                    totalGananciasFinales += producto.precio * cantidad;
+                });
+
+                const galloPinto = datos.gallo_pinto || 0;
+                totalGananciasFinales += galloPinto;
+
+                const gananciasFinalesElement = document.getElementById('ganancias-finales');
+                gananciasFinalesElement.innerHTML = `Ganancias Finales del Día: C$${totalGananciasFinales.toFixed(2)}`;
+
+                if (totalGananciasFinales < 0) {
+                    gananciasFinalesElement.classList.add('red', 'white-text');
+                    gananciasFinalesElement.classList.remove('teal', 'lighten-2');
+                } else {
+                    gananciasFinalesElement.classList.add('teal', 'lighten-2', 'white-text');
+                    gananciasFinalesElement.classList.remove('red');
+                }
+
+                // Reiniciar las ventas para el próximo día
+                localStorage.removeItem('ventas');
+                cargarDatos();
+            }
+        }
+
+        function guardarDatos(datos) {
+            localStorage.setItem('ventas', JSON.stringify(datos));
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
